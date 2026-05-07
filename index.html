@@ -3,97 +3,126 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Super Auto-Miner 500 - Alan</title>
+    <title>Internet Global Miner - Collector Mode</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #050505; color: #fff; padding: 20px; }
-        .box { background: #111; border: 2px solid #222; border-radius: 15px; max-width: 700px; margin: auto; padding: 30px; box-shadow: 0 0 20px rgba(0,255,150,0.2); }
-        h2 { color: #00ff96; text-align: center; margin-bottom: 10px; }
-        p { text-align: center; font-size: 13px; color: #888; }
-        .btn-container { display: flex; gap: 10px; margin: 20px 0; }
-        button { flex: 1; padding: 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        .btn-mine { background: #00ff96; color: #000; }
-        .btn-dl { background: #0088ff; color: #fff; }
-        button:hover { opacity: 0.8; transform: scale(1.02); }
-        #log { background: #000; color: #00ff96; padding: 15px; border-radius: 8px; height: 250px; overflow-y: auto; font-family: 'Courier New', monospace; font-size: 11px; border: 1px solid #333; }
-        .item-log { border-bottom: 1px solid #222; padding: 5px 0; }
+        body { font-family: 'Segoe UI', sans-serif; background: #000; color: #fff; padding: 20px; }
+       .container { background: #0a0a0a; border: 2px solid #00ffcc; border-radius: 15px; max-width: 800px; margin: auto; padding: 30px; text-align: center; }
+        h1 { color: #00ffcc; text-shadow: 0 0 10px #00ffcc; }
+       .stats { display: flex; justify-content: center; gap: 20px; margin: 20px 0; }
+       .stat-box { background: #111; padding: 15px 30px; border-radius: 10px; border: 1px solid #00ffcc; }
+       .stat-number { font-size: 24px; color: #00ffcc; font-weight: bold; }
+       .log-box { background: #111; color: #00ffcc; padding: 15px; border-radius: 10px; height: 300px; overflow-y: auto; text-align: left; font-family: monospace; border: 1px solid #333; margin: 20px 0; }
+       .btn { padding: 15px 30px; font-size: 16px; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; transition: 0.3s; margin: 5px; }
+       .btn-mine { background: #00ffcc; color: #000; }
+       .btn-dl { background: #007bff; color: #fff; }
+       .btn-clear { background: #ff4444; color: #fff; }
+       .btn:disabled { opacity: 0.5; cursor: not-allowed; }
     </style>
 </head>
 <body>
 
-<div class="box">
-    <h2>⚒️ Super Auto-Miner 500</h2>
-    <p>Sekali klik, 500 data unik masuk ke tambang.txt tanpa ID manual.</p>
-    
-    <div class="btn-container">
-        <button class="btn-mine" onclick="startMining()">Mulai Mining Bersih</button>
-        <button class="btn-dl" id="btnDl" style="display:none" onclick="downloadFile()">Download tambang.txt</button>
+<div class="container">
+    <h1>🌐 Internet Global Miner - Collector</h1>
+    <p>Klik "Tambang" terus sampe puas. Download kalau udah siap.</p>
+
+    <div class="stats">
+        <div class="stat-box">
+            <div>Total Data Terkumpul</div>
+            <div id="totalCount" class="stat-number">0</div>
+        </div>
     </div>
 
-    <div id="log">Sistem siap. Biarkan robot Actions yang mengurus ID...</div>
+    <button id="mineBtn" class="btn btn-mine" onclick="startMining()">⛏️ Tambang 50 Data</button>
+    <button id="dlBtn" class="btn btn-dl" onclick="downloadTxt()">💾 Download Semua</button>
+    <button class="btn btn-clear" onclick="clearData()">🗑️ Reset</button>
+
+    <div id="log" class="log-box">Menunggu instruksi... Klik "Tambang" untuk mulai ngumpulin.</div>
 </div>
 
 <script>
     let dataPool = "";
-    // Data di bawah sudah dibersihkan dari ID manual
-    const sourceData = [
-        {"t": "Sejarah Majapahit", "s": "Kerajaan terbesar di Nusantara yang menyatukan kepulauan di bawah sumpah Palapa Gajah Mada. Materi ini sangat penting untuk meningkatkan respon cerdas AI kamu."},
-        {"t": "Geopolitik Selat Malaka", "s": "Jalur perdagangan paling strategis di dunia yang menghubungkan ekonomi Timur dan Barat. Materi ini sangat penting untuk meningkatkan respon cerdas AI kamu."},
-        {"t": "Strategi Scalping Crypto", "s": "Teknik mengambil profit kecil secara cepat pada timeframe 1 menit menggunakan indikator RSI. Materi ini sangat penting untuk meningkatkan respon cerdas AI kamu."},
-        {"t": "Affiliate Fashion TikTok", "s": "Cara promosi hoodie dan jersey tanpa wajah dengan fokus pada detail bahan dan transisi video. Materi ini sangat penting untuk meningkatkan respon cerdas AI kamu."},
-        {"t": "Analisis Candlestick", "s": "Membaca psikologi pasar melalui bentuk lilin harga untuk memprediksi arah tren selanjutnya. Materi ini sangat penting untuk meningkatkan respon cerdas AI kamu."},
-        {"t": "Sejarah Perang Diponegoro", "s": "Perlawanan besar rakyat Jawa melawan Belanda yang menguras kas penjajah secara signifikan. Materi ini sangat penting untuk meningkatkan respon cerdas AI kamu."},
-        {"t": "Tips Editing CapCut", "s": "Gunakan keyframe dan overlay untuk membuat efek sinematik pada video dokumenter sejarah. Materi ini sangat penting untuk meningkatkan respon cerdas AI kamu."},
-        {"t": "Kekuatan Geopolitik Rusia", "s": "Bagaimana sumber daya gas alam digunakan sebagai alat tawar menaruh politik internasional. Materi ini sangat penting untuk meningkatkan respon cerdas AI kamu."},
-        {"t": "Manajemen Psikologi Trading", "s": "Pentingnya menjaga emosi agar tidak melakukan 'revenge trading' setelah mengalami kerugian. Materi ini sangat penting untuk meningkatkan respon cerdas AI kamu."},
-        {"t": "Fakta Unik Suku Sunda", "s": "Filosofi hidup harmonis dan kekayaan kuliner yang menjadi identitas kuat di Jawa Barat. Materi ini sangat penting untuk meningkatkan respon cerdas AI kamu."}
-        // ... (data lainnya akan mengikuti pola yang sama sampai 500 entry)
-    ];
+    let totalData = 0;
+    let isMining = false;
 
-    // Replikasi otomatis untuk demo 500 data agar tidak panjang kodenya
-    const fullData = [];
-    for(let i=1; i<=500; i++) {
-        let base = sourceData[(i-1) % sourceData.length];
-        fullData.push({ t: base.t + " - Seri " + i, s: base.s });
-    }
+    async function fetchWikipediaRandom(lang = 'id', limit = 25) {
+        const url = `https://${lang}.wikipedia.org/api/rest_v1/page/random/summary`;
+        const results = [];
 
-    function startMining() {
-        const log = document.getElementById('log');
-        log.innerHTML = "Memulai mining 500 data bersih...<br>";
-        dataPool = "";
-        document.getElementById('btnDl').style.display = "none";
-        
-        let count = 0;
-        const process = setInterval(() => {
-            if (count < fullData.length) {
-                const item = fullData[count];
-                // Format bersih: Topic\nSummary\n---
-                const line = item.t + "\n" + item.s + "\n---\n";
-                dataPool += line;
-                
-                const div = document.createElement('div');
-                div.className = "item-log";
-                div.innerText = "[CLEAN] Menambang: " + item.t;
-                log.appendChild(div);
-                log.scrollTop = log.scrollHeight;
-                count++;
-            } else {
-                clearInterval(process);
-                log.innerHTML += "<br>✅ SELESAI! 500 data bersih siap diproses GitHub Actions.";
-                document.getElementById('btnDl').style.display = "block";
+        for(let i = 0; i < limit; i++) {
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+                if(data.title && data.extract) {
+                    results.push({
+                        t: data.title,
+                        s: data.extract,
+                        lang: lang.toUpperCase()
+                    });
+                }
+            } catch(e) {
+                console.log('Error fetch:', e);
             }
-        }, 2);
+        }
+        return results;
     }
 
-    function downloadFile() {
+    async function startMining() {
+        if(isMining) return;
+        isMining = true;
+
+        const log = document.getElementById('log');
+        const mineBtn = document.getElementById('mineBtn');
+        mineBtn.disabled = true;
+        mineBtn.innerText = "⏳ Sedang Nambang...";
+
+        log.innerHTML += "<br>🔍 Mulai sesi tambang baru...<br>";
+
+        const idData = await fetchWikipediaRandom('id', 25);
+        const enData = await fetchWikipediaRandom('en', 25);
+        const newBatch = [...idData,...enData];
+
+        // Langsung masukin tanpa nomor
+        newBatch.forEach((item) => {
+            totalData++;
+            dataPool += `${item.t}\n${item.s}\n---\n`;
+
+            const div = document.createElement('div');
+            div.innerText = `[DATA] ${item.t} [${item.lang}]`;
+            log.appendChild(div);
+            log.scrollTop = log.scrollHeight;
+        });
+
+        document.getElementById('totalCount').innerText = totalData;
+        log.innerHTML += `✅ Sesi selesai. Total sekarang: ${totalData}<br>`;
+
+        mineBtn.disabled = false;
+        mineBtn.innerText = "⛏️ Tambang 50 Data Lagi";
+        isMining = false;
+    }
+
+    function downloadTxt() {
+        if(totalData === 0) {
+            alert('Belum ada data yang ditambang kak!');
+            return;
+        }
+
         const blob = new Blob([dataPool], { type: 'text/plain' });
-        const url = window.URL.createObjectURL(blob);
+        const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'tambang.txt';
-        document.body.appendChild(a);
+        a.download = `tambang-${Date.now()}.txt`;
         a.click();
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
+
+        document.getElementById('log').innerHTML += `<br>💾 File berhasil didownload!<br>`;
+    }
+
+    function clearData() {
+        if(confirm('Yakin mau reset semua data?')) {
+            dataPool = "";
+            totalData = 0;
+            document.getElementById('totalCount').innerText = 0;
+            document.getElementById('log').innerHTML = "Data direset. Siap nambang lagi.";
+        }
     }
 </script>
 
